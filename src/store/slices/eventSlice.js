@@ -32,8 +32,15 @@ export const createEvent = createAsyncThunk('events/create', async (eventData, {
 
 export const updateEvent = createAsyncThunk('events/update', async ({ eventId, eventData }, { getState }) => {
   const { token } = getState().user;
+  const formData = new FormData();
+
+  for (const key in eventData) {
+    formData.append(key, eventData[key]);
+  }
+  
   const response = await axios.put(`${API_BASE_URL}/events/${eventId}/`, eventData, {
     headers: {
+      'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
     },
   });
