@@ -29,14 +29,36 @@ export const loginUser = createAsyncThunk('user/login', async (credentials) => {
 export const registerUser = createAsyncThunk('user/register', async (userData) => {
     const csrfToken = await getCSRFToken();
     axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
-    const response = await axios.post(`${API_BASE_URL}/users/`, userData);
+    const formData = new FormData();
+    formData.append('username', userData.username);
+    formData.append('password', userData.password);
+    formData.append('email', userData.email);
+    
+    if (userData.image) {
+        formData.append('image', userData.image);
+    }
+
+    const response = await axios.post(`${API_BASE_URL}/users/`, userData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
     return response.data;
 });
 
 export const updateUser = createAsyncThunk('user/update', async ({ user, userData }, { getState }) => {
   const { token } = getState().user;
-  const response = await axios.patch(`${API_BASE_URL}/users/${user.id}/`, userData, {
+  const formData = new FormData();
+  formData.append('username', userData.username);
+  formData.append('email', userData.email);
+
+  if (userData.image) {
+    formData.append('image', userData.image);
+  }
+
+  const response = await axios.patch(`${API_BASE_URL}/users/${user.id}/`, formData, {
     headers: {
+      "Content-Type": "multipart/form-data",
       Authorization: `Bearer ${token}`,
     },
   });
