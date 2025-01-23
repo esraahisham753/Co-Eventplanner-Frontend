@@ -38,7 +38,7 @@ export const updateEvent = createAsyncThunk('events/update', async ({ eventId, e
     formData.append(key, eventData[key]);
   }
   
-  const response = await axios.put(`${API_BASE_URL}/events/${eventId}/`, eventData, {
+  const response = await axios.patch(`${API_BASE_URL}/events/${eventId}/`, eventData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,

@@ -1,13 +1,12 @@
 'use client';
 
-import React, { use, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateEvent, deleteEvent, fetchEvent } from '../../../../store/slices/eventSlice';
 
 const UpdateDeleteEvent = () => {
   const { id } = useParams();
-  const [eventId, setEventId] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
@@ -20,14 +19,27 @@ const UpdateDeleteEvent = () => {
   useEffect(() => {
     if (id) {
         dispatch(fetchEvent(id));
-        setTitle(event.title);
     }
   }, [dispatch, id]);
+
+  useEffect(() => {
+    if (event) {
+      setTitle(event.title || '');
+      setDescription(event.description || '');
+      setPrice(event.price || '');
+      setLocation(event.location || '');
+      setDate(event.date ? new Date(event.date).toISOString().slice(0, 16) : '');
+
+      if (event.image) {
+        setImage(event.image);
+      }
+    }
+  }, [event]);
 
   const handleUpdate = (e) => {
     e.preventDefault();
     const eventData = { title, description, image, price, location, date };
-    dispatch(updateEvent({ id, eventData }));
+    dispatch(updateEvent({ eventId: id, eventData }));
   };
 
   const handleDelete = () => {
