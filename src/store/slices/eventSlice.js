@@ -15,8 +15,15 @@ export const fetchEvent = createAsyncThunk('events/fetchById', async (eventId) =
 
 export const createEvent = createAsyncThunk('events/create', async (eventData, { getState }) => {
   const { token } = getState().user;
-  const response = await axios.post(`${API_BASE_URL}/events/`, eventData, {
+  const formData = new FormData();
+
+  for (const key in eventData) {
+    formData.append(key, eventData[key]);
+  }
+
+  const response = await axios.post(`${API_BASE_URL}/events/`, formData, {
     headers: {
+      'Content-Type': 'multipart/form-data',
       Authorization: `Bearer ${token}`,
     },
   });

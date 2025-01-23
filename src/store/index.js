@@ -5,6 +5,6 @@ import eventReducer from './slices/eventSlice';
 export const store = configureStore({
   reducer: {
     user: userReducer,
-    event: eventReducer,
+    events: eventReducer,
   },
 });

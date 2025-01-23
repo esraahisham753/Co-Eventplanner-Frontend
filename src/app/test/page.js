@@ -1,7 +1,6 @@
 'use client';
 import Login from "@/components/Login";
-import UserProfile from "@/components/UserProfile";
-import UpdateUser from "@/components/UpdateUser";
+import Link from "next/link";
 
 const Page = () => {
   return (
@@ -9,9 +8,7 @@ const Page = () => {
       <h1>Test Page</h1>
       <Login />
       <hr />
-      <UserProfile />
-      <hr />
-      <UpdateUser />
+      <Link href={'/event-create/'}>Events</Link>
     </div>
   );
 }
