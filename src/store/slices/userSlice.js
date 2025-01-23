@@ -12,9 +12,17 @@ export const loginUser = createAsyncThunk('user/login', async (credentials) => {
     const csrfToken = await getCSRFToken();
     axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
     const response = await axios.post(`${API_BASE_URL}/token/`, credentials);
+    const userData = await axios.get(`${API_BASE_URL}/users/username/${credentials.username}/`, {
+        headers: {
+            Authorization: `Bearer ${response.data.access}`,
+        },
+      });
+    
+    console.log(userData.data);
+
     return {
         token: response.data.access,
-        username: credentials.username,
+        user: userData.data[0]
     };
 });
 
@@ -25,9 +33,9 @@ export const registerUser = createAsyncThunk('user/register', async (userData) =
     return response.data;
 });
 
-export const retrieveUser = createAsyncThunk('user/retrieve', async (userId, { getState }) => {
+export const updateUser = createAsyncThunk('user/update', async ({ user, userData }, { getState }) => {
   const { token } = getState().user;
-  const response = await axios.get(`${API_BASE_URL}/users/${userId}/`, {
+  const response = await axios.patch(`${API_BASE_URL}/users/${user.id}/`, userData, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -35,24 +43,14 @@ export const retrieveUser = createAsyncThunk('user/retrieve', async (userId, { g
   return response.data;
 });
 
-export const updateUser = createAsyncThunk('user/update', async ({ userId, userData }, { getState }) => {
-  const { token } = getState().user;
-  const response = await axios.put(`${API_BASE_URL}/users/${userId}/`, userData, {
+export const deleteUser = createAsyncThunk('user/delete', async (_, { getState }) => {
+  const { token, user } = getState().user;
+  await axios.delete(`${API_BASE_URL}/users/${user.id}/`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  return response.data;
-});
-
-export const deleteUser = createAsyncThunk('user/delete', async (userId, { getState }) => {
-  const { token } = getState().user;
-  await axios.delete(`${API_BASE_URL}/users/${userId}/`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return userId;
+  return user.id;
 });
 
 const userSlice = createSlice({
@@ -76,7 +74,7 @@ const userSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.user = action.payload.username;
+        state.user = action.payload.user;
         state.token = action.payload.token;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -90,17 +88,6 @@ const userSlice = createSlice({
         state.status = 'succeeded';
       })
       .addCase(registerUser.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
-      .addCase(retrieveUser.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(retrieveUser.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.user = action.payload;
-      })
-      .addCase(retrieveUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })
