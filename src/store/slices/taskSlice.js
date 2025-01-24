@@ -3,8 +3,14 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export const fetchTasks = createAsyncThunk('tasks/fetchAll', async () => {
-  const response = await axios.get(`${API_BASE_URL}/tasks/`);
+export const fetchTasks = createAsyncThunk('tasks/fetchAll', async (eventId, {getState}) => {
+  const response = await axios.get(`${API_BASE_URL}/events/${eventId}/tasks/`,
+    {
+      headers: {
+        Authorization: `Bearer ${getState().user.token}`,
+      }
+    }
+  );
   return response.data;
 });
 
