@@ -13,6 +13,15 @@ export const fetchEvent = createAsyncThunk('events/fetchById', async (eventId) =
   return response.data;
 });
 
+export const fetchEventsByUser = createAsyncThunk('events/fetchByUser', async (_, {getState}) => {
+  const response = await axios.get(`${API_BASE_URL}/me/events/`, {
+    headers: {
+      Authorization: `Bearer ${getState().user.token}`,
+    },
+  });
+  return response.data;
+});
+
 export const createEvent = createAsyncThunk('events/create', async (eventData, { getState }) => {
   const { token } = getState().user;
   const formData = new FormData();
@@ -76,6 +85,17 @@ const eventSlice = createSlice({
         state.events = action.payload;
       })
       .addCase(fetchEvents.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchEventsByUser.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchEventsByUser.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.events = action.payload;
+      })
+      .addCase(fetchEventsByUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       })

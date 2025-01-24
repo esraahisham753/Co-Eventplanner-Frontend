@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'next/navigation';
-import { fetchEvent } from '../../../../store/slices/eventSlice';
-import { createTask } from '../../../../store/slices/taskSlice';
+import { fetchEvent } from '../../../store/slices/eventSlice';
+import { createTask } from '../../../store/slices/taskSlice';
 
 const EventDetails = () => {
   const dispatch = useDispatch();

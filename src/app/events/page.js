@@ -2,14 +2,14 @@
 
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchEvents } from '../../store/slices/eventSlice';
+import { fetchEventsByUser } from '../../store/slices/eventSlice';
 
 const FetchEvents = () => {
   const dispatch = useDispatch();
   const { events, status, error } = useSelector((state) => state.events);
 
   useEffect(() => {
-    dispatch(fetchEvents());
+    dispatch(fetchEventsByUser());
   }, [dispatch]);
 
   return (
