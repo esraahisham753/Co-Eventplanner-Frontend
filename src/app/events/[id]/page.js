@@ -85,7 +85,7 @@ const EventDetails = () => {
           {teams.map((team) => (
             <li key={team.id}>
               <h3>{team.username}</h3>
-              {team.user.image && <img src={team.user.image} alt={team.username} />}
+              {team.image && <img src={team.image} alt={team.username} />}
               <p>Role: {team.role}</p>
             </li>
           ))}

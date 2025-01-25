@@ -3,8 +3,15 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export const fetchTeams = createAsyncThunk('teams/fetchAll', async (eventId) => {
-  const response = await axios.get(`${API_BASE_URL}/events/${eventId}/teams/`);
+export const fetchTeams = createAsyncThunk('teams/fetchAll', async (eventId, {getState}) => {
+  const { token } = getState().user;
+  const response = await axios.get(`${API_BASE_URL}/events/${eventId}/teams/`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return response.data;
 });
 

@@ -27,6 +27,8 @@ const FetchTask = () => {
           <p>Status: {task.status}</p>
           <p>Event ID: {task.event}</p>
           <p>User ID: {task.user}</p>
+          <p>Username: {task.username}</p>
+          {task.image && <img src={task.image} alt={task.username} />}
         </div>
       )}
       {status === 'failed' && <p>Error: {error}</p>}
