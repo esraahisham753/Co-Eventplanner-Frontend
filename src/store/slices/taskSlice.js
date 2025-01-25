@@ -14,8 +14,15 @@ export const fetchTasks = createAsyncThunk('tasks/fetchAll', async (eventId, {ge
   return response.data;
 });
 
-export const fetchTask = createAsyncThunk('tasks/fetchById', async (taskId) => {
-  const response = await axios.get(`${API_BASE_URL}/tasks/${taskId}/`);
+export const fetchTask = createAsyncThunk('tasks/fetchById', async (taskId, {getState}) => {
+  const { token } = getState().user;
+  const response = await axios.get(`${API_BASE_URL}/tasks/${taskId}/`, 
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }
+  );
   return response.data;
 });
 

@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEventsByUser } from '../../store/slices/eventSlice';
 
-const FetchEvents = () => {
+const FetchUserEvents = () => {
   const dispatch = useDispatch();
   const { events, status, error } = useSelector((state) => state.events);
 
@@ -14,7 +14,7 @@ const FetchEvents = () => {
 
   return (
     <div>
-      <h1>Events</h1>
+      <h1>User Events</h1>
       {status === 'loading' && <p>Loading...</p>}
       {status === 'succeeded' && (
         <ul>
@@ -26,6 +26,7 @@ const FetchEvents = () => {
               <p>Price: ${event.price}</p>
               <p>Location: {event.location}</p>
               <p>Date: {new Date(event.date).toLocaleString()}</p>
+              <p>Role: {event.role}</p>
             </li>
           ))}
         </ul>
@@ -35,4 +36,4 @@ const FetchEvents = () => {
   );
 };
 
-export default FetchEvents;
+export default FetchUserEvents;
