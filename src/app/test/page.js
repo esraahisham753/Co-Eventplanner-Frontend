@@ -8,7 +8,7 @@ const Page = () => {
       <h1>Test Page</h1>
       <Login />
       <hr />
-      <Link href={'/events/'}>Events</Link>
+      <Link href={'/tasks/11/update'}>Update Task 11</Link>
     </div>
   );
 }
