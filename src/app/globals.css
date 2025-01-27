@@ -26,6 +26,88 @@
   .quote-image-overlay {
     @apply absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl;
   }
+
+  .faq-section {
+    @apply bg-gray-50 py-20;
+  }
+
+  .faq-container {
+    @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .faq-header {
+    @apply text-center mb-12;
+  }
+
+  .faq-title {
+    @apply text-3xl md:text-4xl font-bold text-gray-900 mb-4;
+  }
+
+  .faq-description {
+    @apply text-lg text-gray-600 max-w-2xl mx-auto;
+  }
+
+  .footer-link {
+    @apply text-gray-400 hover:text-white transition-colors duration-200;
+  }
+
+  .social-icon {
+    @apply text-gray-400 hover:text-white transition-colors duration-200 p-2 rounded-full hover:bg-gray-800;
+  }
+
+  .login-input {
+    @apply mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+    focus:outline-none focus:ring-primary focus:border-primary;
+  }
+
+  .login-checkbox {
+    @apply h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded;
+  }
+
+  .login-button {
+    @apply w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
+    text-sm font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none 
+    focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .user-dropdown {
+    @apply absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 
+    divide-y divide-gray-100 focus:outline-none;
+  }
+
+  .dropdown-item {
+    @apply block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left;
+  }
+
+  .user-avatar {
+    @apply w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center;
+  }
+
+  @media (max-width: 768px) {
+    .mobile-text-center {
+      @apply text-center;
+    }
+
+    .mobile-flex-center {
+      @apply flex justify-center;
+    }
+
+    h1, h2, h3, h4, p {
+      @apply text-center;
+    }
+
+    .btn-primary, .btn-secondary {
+      @apply w-full justify-center;
+    }
+
+    .login-container {
+      @apply px-4;
+    }
+
+    .login-form {
+      @apply w-full;
+    }
+  }
 }
 
 :root {

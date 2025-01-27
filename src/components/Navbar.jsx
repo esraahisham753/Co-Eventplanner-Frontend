@@ -1,13 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutUser } from '@/store/slices/userSlice';
+import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
   const { user } = useSelector((state) => state.user);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    setIsDropdownOpen(false);
+    router.push('/');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
@@ -50,10 +74,49 @@ const Navbar = () => {
               <Link href="/workspace" className="nav-link">Workspace</Link>
               <Link href="/messages" className="nav-link">Messages</Link>
             </div>
-            {!user && (
+            {!user ? (
               <Link href="/login" className="btn-primary">
                 Sign In
               </Link>
+            ) : (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center space-x-3 focus:outline-none"
+                >
+                  <div className="flex items-center space-x-3">
+                    {user.image ? (
+                      <Image
+                        src={user.image}
+                        alt={user.username}
+                        width={32}
+                        height={32}
+                        className="rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center">
+                        {user.username?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="text-gray-700 font-medium">{user.username}</span>
+                  </div>
+                </button>
+
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                    <div className="py-1" role="menu">
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        role="menuitem"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -66,7 +129,16 @@ const Navbar = () => {
           <Link href="/requests" className="mobile-nav-link">Requests</Link>
           <Link href="/workspace" className="mobile-nav-link">Workspace</Link>
           <Link href="/messages" className="mobile-nav-link">Messages</Link>
-          {!user && (
+          {user ? (
+            <>
+              <button
+                onClick={handleLogout}
+                className="w-full text-left mobile-nav-link"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
             <Link href="/login" className="mobile-nav-link">
               Sign In
             </Link>

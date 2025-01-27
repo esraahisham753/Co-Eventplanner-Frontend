@@ -75,6 +75,11 @@ export const deleteUser = createAsyncThunk('user/delete', async (_, { getState }
   return user.id;
 });
 
+export const logoutUser = createAsyncThunk('user/logout', async (_, { dispatch }) => {
+  dispatch(logout());
+  return null;
+});
+
 const userSlice = createSlice({
   name: 'user',
   initialState: {
@@ -87,6 +92,8 @@ const userSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.status = 'idle';
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -133,6 +140,19 @@ const userSlice = createSlice({
         state.token = null;
       })
       .addCase(deleteUser.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(logoutUser.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.status = 'idle';
+        state.user = null;
+        state.token = null;
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });
