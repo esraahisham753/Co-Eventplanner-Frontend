@@ -59,12 +59,25 @@ export const deleteTicket = createAsyncThunk('tickets/delete', async (ticketId, 
   return ticketId;
 });
 
+export const fetchUserTickets = createAsyncThunk('tickets/fetchUserTickets', async (userId, {getState}) => {
+  const response = await axios.get(`${API_BASE_URL}/users/${userId}/tickets/`,
+    {
+      headers: {
+        Authorization: `Bearer ${getState().user.token}`,
+      }
+    }
+  );
+  return response.data;
+});
+
 const ticketSlice = createSlice({
   name: 'tickets',
   initialState: {
     tickets: [],
+    userTickets: [],
     ticket: null,
     status: 'idle',
+    userTicketsStatus: 'idle',
     error: null,
   },
   reducers: {},
@@ -126,6 +139,17 @@ const ticketSlice = createSlice({
       })
       .addCase(deleteTicket.rejected, (state, action) => {
         state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchUserTickets.pending, (state) => {
+        state.userTicketsStatus = 'loading';
+      })
+      .addCase(fetchUserTickets.fulfilled, (state, action) => {
+        state.userTicketsStatus = 'succeeded';
+        state.userTickets = action.payload;
+      })
+      .addCase(fetchUserTickets.rejected, (state, action) => {
+        state.userTicketsStatus = 'failed';
         state.error = action.error.message;
       });
   },

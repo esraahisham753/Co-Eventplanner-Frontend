@@ -5,6 +5,7 @@ import taskReducer from './slices/taskSlice';
 import teamReducer from './slices/teamSlice';
 import budgetItemReducer from './slices/budgetItemSlice';
 import ticketReducer from './slices/ticketSlice';
+import messageReducer from './slices/messageSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     teams: teamReducer,
     budgetItems: budgetItemReducer,
     tickets: ticketReducer,
+    messages: messageReducer,
   },
 });

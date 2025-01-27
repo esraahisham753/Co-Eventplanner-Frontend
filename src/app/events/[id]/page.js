@@ -112,6 +112,28 @@ const EventDetails = () => {
               <p><strong>Location:</strong> {event.location}</p>
               <p><strong>Date:</strong> {new Date(event.date).toLocaleString()}</p>
             </div>
+            
+            <div className="ticket-stats">
+              <div className="stat-box">
+                <h4>Total Tickets Sold</h4>
+                {ticketStatus === 'loading' ? (
+                  <p>Loading...</p>
+                ) : ticketStatus === 'succeeded' ? (
+                  <p className="stat-number">{tickets.length}</p>
+                ) : null}
+              </div>
+              <div className="stat-box">
+                <h4>Your Tickets</h4>
+                {ticketStatus === 'loading' ? (
+                  <p>Loading...</p>
+                ) : ticketStatus === 'succeeded' ? (
+                  <p className="stat-number">
+                    {tickets.filter(ticket => ticket.user === user.id).length}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
             <p className="event-description">{event.description}</p>
             {event.image && <img src={event.image} alt={event.title} className="event-image" />}
             
@@ -519,6 +541,34 @@ const EventDetails = () => {
         .buy-ticket-button:disabled {
           background: #6c757d;
           cursor: not-allowed;
+        }
+
+        .ticket-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 1rem;
+          margin: 1.5rem 0;
+        }
+
+        .stat-box {
+          background: #f8f9fa;
+          padding: 1rem;
+          border-radius: 8px;
+          text-align: center;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-box h4 {
+          margin: 0 0 0.5rem 0;
+          color: #666;
+          font-size: 0.9rem;
+        }
+
+        .stat-number {
+          font-size: 2rem;
+          font-weight: bold;
+          color: #0070f3;
+          margin: 0;
         }
 
         @media (min-width: 768px) {
