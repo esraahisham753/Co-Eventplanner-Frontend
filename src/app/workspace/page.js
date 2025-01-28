@@ -73,7 +73,7 @@ const WorkspacePage = () => {
               {futureEvents.map((event) => (
                 <Link 
                   key={event.id} 
-                  href={`/events/${event.id}`}
+                  href={`/workspace/${event.id}`}
                   className="block group"
                 >
                   <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 flex items-center">
