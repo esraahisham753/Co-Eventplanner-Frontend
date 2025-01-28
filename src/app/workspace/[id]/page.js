@@ -48,9 +48,15 @@ const WorkspaceEventPage = () => {
     dispatch(fetchMessages(id));
   }, [dispatch, id, user, router]);
 
-  const isOrganizer = event?.role === 'organizer';
+  // Check if the logged-in user is an organizer
+  const isOrganizer = teams?.some(team => 
+    team.user === user?.id && 
+    team.role === 'organizer'
+  );
 
   const handleDeleteEvent = async () => {
+    if (!isOrganizer) return;
+    
     if (window.confirm('Are you sure you want to delete this event?')) {
       await dispatch(deleteEvent(id));
       router.push('/workspace');
@@ -59,6 +65,8 @@ const WorkspaceEventPage = () => {
 
   const handleAddTeamMember = async (e) => {
     e.preventDefault();
+    if (!isOrganizer) return;
+
     if (newTeamMember.trim()) {
       await dispatch(createTeam({ event: id, username: newTeamMember }));
       setNewTeamMember('');
@@ -66,6 +74,8 @@ const WorkspaceEventPage = () => {
   };
 
   const handleRemoveTeamMember = async (teamId) => {
+    if (!isOrganizer) return;
+
     if (window.confirm('Are you sure you want to remove this team member?')) {
       await dispatch(deleteTeam(teamId));
     }
@@ -73,6 +83,8 @@ const WorkspaceEventPage = () => {
 
   const handleAddBudgetItem = async (e) => {
     e.preventDefault();
+    if (!isOrganizer) return;
+
     if (newBudgetItem.title && newBudgetItem.amount) {
       await dispatch(createBudgetItem({ ...newBudgetItem, event: id }));
       setNewBudgetItem({ title: '', description: '', amount: '' });
@@ -355,87 +367,156 @@ const TeamRegion = ({ teams, isOrganizer, newTeamMember, setNewTeamMember, onAdd
 };
 
 const BudgetRegion = ({ budgetItems, isOrganizer, newBudgetItem, setNewBudgetItem, onAddItem, onDeleteItem, onBack }) => {
+  // Calculate total amount
+  const totalAmount = budgetItems?.reduce((sum, item) => sum + parseFloat(item.amount), 0) || 0;
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center space-x-4 mb-6">
-        <button 
-          onClick={onBack}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <FiArrowLeft className="w-6 h-6" />
-        </button>
-        <h2 className="text-2xl font-bold text-gray-900">Budget</h2>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <button 
+            onClick={onBack}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <FiArrowLeft className="w-5 h-5" />
+          </button>
+        </div>
+        <h2 className="text-xl font-semibold text-gray-900">Budget</h2>
+        <div className="w-8" /> {/* Spacer for alignment */}
+      </div>
+
+      {/* Total Amount Card */}
+      <div className="bg-primary/5 rounded-xl p-6 mb-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500">Total Budget</h3>
+            <p className="text-2xl font-bold text-primary mt-1">
+              ${totalAmount.toFixed(2)}
+            </p>
+          </div>
+          <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center">
+            <FiDollarSign className="w-6 h-6 text-primary" />
+          </div>
+        </div>
       </div>
 
       {/* Budget Items List */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="space-y-4">
-          {budgetItems?.map((item) => (
+      <div className="space-y-4">
+        {budgetItems?.length === 0 ? (
+          <p className="text-gray-500 text-center py-4">No budget items yet</p>
+        ) : (
+          budgetItems?.map((item) => (
             <div 
               key={item.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-gray-200"
+              className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
             >
               <div className="flex-grow">
                 <h3 className="font-medium text-gray-900">{item.title}</h3>
                 <p className="text-sm text-gray-500">{item.description}</p>
-                <p className="text-sm font-medium text-primary mt-1">${item.amount}</p>
               </div>
-              {isOrganizer && (
-                <button
-                  onClick={() => onDeleteItem(item.id)}
-                  className="text-red-600 hover:text-red-700 ml-4"
-                >
-                  <FiTrash2 className="w-5 h-5" />
-                </button>
-              )}
+              <div className="flex items-center space-x-4">
+                <span className="font-medium text-gray-900">
+                  ${parseFloat(item.amount).toFixed(2)}
+                </span>
+                {isOrganizer && (
+                  <button
+                    onClick={() => onDeleteItem(item.id)}
+                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <FiTrash2 className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
             </div>
-          ))}
-        </div>
+          ))
+        )}
+      </div>
 
-        {/* Add Budget Item Form - Only visible to organizers */}
-        {isOrganizer && (
-          <form onSubmit={onAddItem} className="mt-6 pt-6 border-t space-y-4">
-            <input
-              type="text"
-              value={newBudgetItem.title}
-              onChange={(e) => setNewBudgetItem({...newBudgetItem, title: e.target.value})}
-              placeholder="Title"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-            <textarea
-              value={newBudgetItem.description}
-              onChange={(e) => setNewBudgetItem({...newBudgetItem, description: e.target.value})}
-              placeholder="Description"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              rows="2"
-            />
-            <div className="flex gap-4">
+      {/* Add Budget Item Form */}
+      {isOrganizer && (
+        <form onSubmit={onAddItem} className="mt-6 pt-6 border-t">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                Title
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={newBudgetItem.title}
+                onChange={(e) => setNewBudgetItem(prev => ({
+                  ...prev,
+                  title: e.target.value
+                }))}
+                className="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <input
+                type="text"
+                id="description"
+                name="description"
+                value={newBudgetItem.description}
+                onChange={(e) => setNewBudgetItem(prev => ({
+                  ...prev,
+                  description: e.target.value
+                }))}
+                className="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+                Amount
+              </label>
               <input
                 type="number"
+                id="amount"
+                name="amount"
                 value={newBudgetItem.amount}
-                onChange={(e) => setNewBudgetItem({...newBudgetItem, amount: e.target.value})}
-                placeholder="Amount"
-                className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                onChange={(e) => setNewBudgetItem(prev => ({
+                  ...prev,
+                  amount: e.target.value
+                }))}
+                className="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary"
                 step="0.01"
                 min="0"
+                required
               />
+            </div>
+            <div className="flex justify-end">
               <button
                 type="submit"
-                className="btn-primary whitespace-nowrap"
+                className="btn-primary px-6 py-2 text-sm"
               >
                 Add Item
               </button>
             </div>
-          </form>
-        )}
-      </div>
+          </div>
+        </form>
+      )}
     </div>
   );
 };
 
 const MessagesRegion = ({ messages, newMessage, setNewMessage, messageImage, setMessageImage, onSendMessage, currentUser }) => {
   const fileInputRef = React.useRef();
+  const messagesEndRef = React.useRef();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -448,7 +529,7 @@ const MessagesRegion = ({ messages, newMessage, setNewMessage, messageImage, set
     <div className="flex flex-col h-[calc(100vh-12rem)]">
       {/* Messages List */}
       <div className="flex-grow overflow-y-auto space-y-4 p-4">
-        {messages?.slice().reverse().map((message) => (
+        {messages?.map((message) => (
           <div 
             key={message.id}
             className={`flex ${message.sender === currentUser?.id ? 'justify-end' : 'justify-start'}`}
@@ -488,6 +569,7 @@ const MessagesRegion = ({ messages, newMessage, setNewMessage, messageImage, set
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} /> {/* Scroll anchor */}
       </div>
 
       {/* Message Input */}
