@@ -15,7 +15,7 @@ const EventsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOrder, setSortOrder] = useState({ type: 'date', ascending: false });
-  const eventsPerPage = 10;
+  const eventsPerPage = 9;
 
   useEffect(() => {
     dispatch(fetchEvents());
