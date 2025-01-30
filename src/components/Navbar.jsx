@@ -72,7 +72,7 @@ const Navbar = () => {
               <Link href="/events" className="nav-link">Events</Link>
               <Link href="/requests" className="nav-link">Requests</Link>
               <Link href="/workspace" className="nav-link">Workspace</Link>
-              <Link href="/messages" className="nav-link">Messages</Link>
+              <Link href="/tickets" className="nav-link">Tickets</Link>
             </div>
             {!user ? (
               <Link href="/login" className="btn-primary">
@@ -128,7 +128,7 @@ const Navbar = () => {
           <Link href="/events" className="mobile-nav-link">Events</Link>
           <Link href="/requests" className="mobile-nav-link">Requests</Link>
           <Link href="/workspace" className="mobile-nav-link">Workspace</Link>
-          <Link href="/messages" className="mobile-nav-link">Messages</Link>
+          <Link href="/tickets" className="mobile-nav-link">Tickets</Link>
           {user ? (
             <>
               <button
