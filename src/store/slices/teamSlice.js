@@ -55,6 +55,22 @@ export const deleteTeam = createAsyncThunk('teams/delete', async (teamId, { getS
   return teamId;
 });
 
+export const fetchPendingInvitations = createAsyncThunk(
+  'teams/fetchPendingInvitations',
+  async (_, { getState }) => {
+    const { token } = getState().user;
+    const response = await axios.get(
+      `${API_BASE_URL}/me/teams/pending/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  }
+);
+
 const teamSlice = createSlice({
   name: 'teams',
   initialState: {
@@ -121,6 +137,17 @@ const teamSlice = createSlice({
         state.teams = state.teams.filter(team => team.id !== action.payload);
       })
       .addCase(deleteTeam.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchPendingInvitations.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchPendingInvitations.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.teams = action.payload;
+      })
+      .addCase(fetchPendingInvitations.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message;
       });

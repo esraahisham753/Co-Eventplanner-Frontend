@@ -173,6 +173,7 @@ const WorkspaceEventPage = () => {
                 onAddMember={handleAddTeamMember}
                 onRemoveMember={handleRemoveTeamMember}
                 onBack={() => setActiveTab('home')}
+                user={user}
               />
             )}
             
@@ -302,7 +303,10 @@ const HomeRegion = ({ event, tasks, isOrganizer, onDelete }) => {
   );
 };
 
-const TeamRegion = ({ teams, isOrganizer, newTeamMember, setNewTeamMember, onAddMember, onRemoveMember, onBack }) => {
+const TeamRegion = ({ teams, isOrganizer, newTeamMember, setNewTeamMember, onAddMember, onRemoveMember, onBack, user }) => {
+  const acceptedTeams = teams?.filter(team => team.invitation_status) || [];
+  const pendingTeams = teams?.filter(team => !team.invitation_status) || [];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -316,66 +320,109 @@ const TeamRegion = ({ teams, isOrganizer, newTeamMember, setNewTeamMember, onAdd
         <h2 className="text-2xl font-bold text-gray-900">Team</h2>
       </div>
 
-      {/* Team List */}
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="space-y-4">
-          {teams?.map((member) => (
-            <div 
-              key={member.id}
-              className="flex items-center justify-between p-4 rounded-lg border border-gray-200"
+      {/* Add Team Member Form - only show for organizers */}
+      {isOrganizer && (
+        <form onSubmit={onAddMember} className="flex gap-4 mb-8">
+          <input
+            type="text"
+            value={newTeamMember}
+            onChange={(e) => setNewTeamMember(e.target.value)}
+            placeholder="Enter username"
+            className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+          <button
+            type="submit"
+            className="btn-primary whitespace-nowrap"
+          >
+            Add Member
+          </button>
+        </form>
+      )}
+
+      {/* Accepted Team Members */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Team Members</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {acceptedTeams.map((team) => (
+            <div
+              key={team.id}
+              className="bg-white rounded-lg shadow-sm p-4 flex items-center justify-between"
             >
-              <div className="flex items-center space-x-4">
-                {member.image ? (
+              <div className="flex items-center space-x-3">
+                {team.image ? (
                   <Image
-                    src={member.image}
-                    alt={member.username}
+                    src={team.image}
+                    alt={team.username}
                     width={40}
                     height={40}
                     className="rounded-full object-cover"
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center">
-                    {member.username?.charAt(0).toUpperCase()}
+                    {team.username?.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div>
-                  <h3 className="font-medium text-gray-900">{member.username}</h3>
-                  <p className="text-sm text-gray-500 capitalize">{member.role}</p>
+                  <p className="font-medium text-gray-900">{team.username}</p>
+                  <p className="text-sm text-gray-500 capitalize">{team.role}</p>
                 </div>
               </div>
-              {isOrganizer && (
+              {isOrganizer && team.user !== user?.id && (
                 <button
-                  onClick={() => onRemoveMember(member.id)}
-                  className="text-red-600 hover:text-red-700"
+                  onClick={() => onRemoveMember(team.id)}
+                  className="text-red-600 hover:text-red-800"
                 >
-                  <FiTrash2 className="w-5 h-5" />
+                  <FiX className="w-5 h-5" />
                 </button>
               )}
             </div>
           ))}
         </div>
-
-        {/* Add Member Form - Only visible to organizers */}
-        {isOrganizer && (
-          <form onSubmit={onAddMember} className="mt-6 pt-6 border-t">
-            <div className="flex gap-4">
-              <input
-                type="text"
-                value={newTeamMember}
-                onChange={(e) => setNewTeamMember(e.target.value)}
-                placeholder="Enter username"
-                className="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              />
-              <button
-                type="submit"
-                className="btn-primary whitespace-nowrap"
-              >
-                Add Member
-              </button>
-            </div>
-          </form>
-        )}
       </div>
+
+      {/* Pending Invitations - only show for organizers */}
+      {isOrganizer && pendingTeams.length > 0 && (
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Pending Invitations</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pendingTeams.map((team) => (
+              <div
+                key={team.id}
+                className="bg-gray-50 rounded-lg shadow-sm p-4 flex items-center justify-between"
+              >
+                <div className="flex items-center space-x-3">
+                  {team.image ? (
+                    <Image
+                      src={team.image}
+                      alt={team.username}
+                      width={40}
+                      height={40}
+                      className="rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center">
+                      {team.username?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium text-gray-700">{team.username}</p>
+                    <p className="text-sm text-gray-500">
+                      <span className="capitalize">{team.role}</span>
+                      <span className="text-amber-600 ml-2">(Pending)</span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => onRemoveMember(team.id)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <FiX className="w-5 h-5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
