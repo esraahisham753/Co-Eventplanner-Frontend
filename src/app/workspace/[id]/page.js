@@ -91,6 +91,20 @@ const WorkspaceEventPage = () => {
     }
   };
 
+  const handleDeleteBudgetItem = async (itemId) => {
+    if (!isOrganizer) return;
+
+    if (window.confirm('Are you sure you want to delete this budget item?')) {
+      try {
+        await dispatch(deleteBudgetItem(itemId)).unwrap();
+        // Refresh budget items after deletion
+        dispatch(fetchBudgetItems(id));
+      } catch (err) {
+        console.error('Failed to delete budget item:', err);
+      }
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (newMessage.trim() || messageImage) {
@@ -169,7 +183,7 @@ const WorkspaceEventPage = () => {
                 newBudgetItem={newBudgetItem}
                 setNewBudgetItem={setNewBudgetItem}
                 onAddItem={handleAddBudgetItem}
-                onDeleteItem={deleteBudgetItem}
+                onDeleteItem={handleDeleteBudgetItem}
                 onBack={() => setActiveTab('home')}
               />
             )}
@@ -216,7 +230,7 @@ const HomeRegion = ({ event, tasks, isOrganizer, onDelete }) => {
               Share
             </button>
             <Link 
-              href={`/events/${event?.id}/edit`}
+              href={`/workspace/${event?.id}/edit`}
               className="btn-secondary"
             >
               <FiEdit className="w-5 h-5 mr-2" />
@@ -403,34 +417,27 @@ const BudgetRegion = ({ budgetItems, isOrganizer, newBudgetItem, setNewBudgetIte
 
       {/* Budget Items List */}
       <div className="space-y-4">
-        {budgetItems?.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No budget items yet</p>
-        ) : (
-          budgetItems?.map((item) => (
-            <div 
-              key={item.id}
-              className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
-            >
-              <div className="flex-grow">
+        {budgetItems?.map((item) => (
+          <div key={item.id} className="bg-white rounded-lg p-4 shadow-sm">
+            <div className="flex justify-between items-start">
+              <div>
                 <h3 className="font-medium text-gray-900">{item.title}</h3>
                 <p className="text-sm text-gray-500">{item.description}</p>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="font-medium text-gray-900">
-                  ${parseFloat(item.amount).toFixed(2)}
-                </span>
+                <span className="font-medium text-primary">${parseFloat(item.amount).toFixed(2)}</span>
                 {isOrganizer && (
                   <button
                     onClick={() => onDeleteItem(item.id)}
-                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     <FiTrash2 className="w-5 h-5" />
                   </button>
                 )}
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
 
       {/* Add Budget Item Form */}
